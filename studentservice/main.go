@@ -94,5 +94,5 @@ func main() {
 	})
 
 	log.Println("Student Service running on port 5001")
-	log.Fatal(http.ListenAndServe(":5001", nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:5001", nil))
 }
