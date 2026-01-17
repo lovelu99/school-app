@@ -1,0 +1,57 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: no
+    ports:
+      - "80:80"
+  teacherservice:
+    build: ./teacherservice
+    container_name: teacherservice
+    restart: no
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
+      - DATABASE_NAME=schooldb
+    depends_on:
+      - mongo
+  studentservice:
+    build: ./studentservice
+    container_name: studentservice
+    restart: no
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
+      - DATABASE_NAME=schooldb
+    depends_on:
+      - mongo
+  employeeservice:
+    build: ./employeeservice
+    container_name: employeeservice
+    restart: no
+    ports:
+      - "5003:5003"
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
+      - DATABASE_NAME=schooldb
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: no
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/mongodbschool
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: schooldb
+
+
+volumes:
+  mongodb-data:
