@@ -1,10 +1,26 @@
 services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: no
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - studentservice
+      - teacherservice
+      - employeeservice
+
   frontend:
     build: ./frontend
     container_name: frontend
     restart: no
     ports:
-      - "80:80"
+      - "3000:3000"
+    depends_on:
+      - studentservice
+      - teacherservice
+      - employeeservice
   teacherservice:
     build: ./teacherservice
     container_name: teacherservice
