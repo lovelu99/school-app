@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap 
+metadata:
+  name: school-app-config
+data:
+  MONGO_HOST: "monodb-svc"
+  MONGO_PORT: "27017"
+  MONGO_DB: "schooldb"

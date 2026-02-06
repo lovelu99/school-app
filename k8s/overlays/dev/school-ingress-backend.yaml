@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: school-ingress-backend
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /employeeservice(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: employee-svc
+                port:
+                  number: 80
+
+          - path: /studentservice(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: student-svc
+                port:
+                  number: 80
+          - path: /teacherservice(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: teacher-svc
+                port:
+                  number: 80
+
