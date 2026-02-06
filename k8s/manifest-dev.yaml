@@ -1,0 +1,346 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: school-dev
+---
+apiVersion: v1
+data:
+  MONGO_DB: schooldb
+  MONGO_HOST: monodb-svc
+  MONGO_PORT: "27017"
+kind: ConfigMap
+metadata:
+  name: school-app-config
+  namespace: school-dev
+---
+apiVersion: v1
+data:
+  MONGO_PASSWORD: cGFzc3dvcmQxMjM=
+  MONGO_USERNAME: bG92ZWx1
+kind: Secret
+metadata:
+  name: school-db-credentials
+  namespace: school-dev
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-svc
+  namespace: school-dev
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5003
+  selector:
+    app: employee-backend
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: school-dev
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: school-frontend
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monodb-svc
+  namespace: school-dev
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: mongodb
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: student-svc
+  namespace: school-dev
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5001
+  selector:
+    app: student-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teacher-svc
+  namespace: school-dev
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5002
+  selector:
+    app: teacher-backend
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-deployment
+  namespace: school-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee-backend
+  template:
+    metadata:
+      labels:
+        app: employee-backend
+    spec:
+      containers:
+      - env:
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_HOST
+              name: school-app-config
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_PORT
+              name: school-app-config
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_DB
+              name: school-app-config
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_USERNAME
+              name: school-db-credentials
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_PASSWORD
+              name: school-db-credentials
+        image: noakhali/school-app-employeeservice:2.0
+        name: employee-backend
+        ports:
+        - containerPort: 5003
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  namespace: school-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_USERNAME
+              name: school-db-credentials
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_PASSWORD
+              name: school-db-credentials
+        - name: MONGO_INITDB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_DB
+              name: school-app-config
+        image: mongo:latest
+        name: mongodb
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongo-data
+      volumes:
+      - emptyDir: {}
+        name: mongo-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: school-frontend
+  name: school-frontend
+  namespace: school-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: school-frontend
+  template:
+    metadata:
+      labels:
+        app: school-frontend
+    spec:
+      containers:
+      - image: noakhali/school-app-frontend:2.0
+        name: school-frontend
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-deployment
+  namespace: school-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-backend
+  template:
+    metadata:
+      labels:
+        app: student-backend
+    spec:
+      containers:
+      - env:
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_HOST
+              name: school-app-config
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_PORT
+              name: school-app-config
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_DB
+              name: school-app-config
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_USERNAME
+              name: school-db-credentials
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_PASSWORD
+              name: school-db-credentials
+        image: noakhali/school-app-studentservice:2.0
+        name: student-backend
+        ports:
+        - containerPort: 5001
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teacher-deployment
+  namespace: school-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teacher-backend
+  template:
+    metadata:
+      labels:
+        app: teacher-backend
+    spec:
+      containers:
+      - env:
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_HOST
+              name: school-app-config
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_PORT
+              name: school-app-config
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_DB
+              name: school-app-config
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_USERNAME
+              name: school-db-credentials
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MONGO_PASSWORD
+              name: school-db-credentials
+        image: noakhali/school-app-teacherservice:2.0
+        name: teacher-backend
+        ports:
+        - containerPort: 5002
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  name: school-ingress
+  namespace: school-dev
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: employee-svc
+            port:
+              number: 80
+        path: /employeeservice(/|$)(.*)
+        pathType: ImplementationSpecific
+      - backend:
+          service:
+            name: student-svc
+            port:
+              number: 80
+        path: /studentservice(/|$)(.*)
+        pathType: ImplementationSpecific
+      - backend:
+          service:
+            name: teacher-svc
+            port:
+              number: 80
+        path: /teacherservice(/|$)(.*)
+        pathType: ImplementationSpecific
+      - backend:
+          service:
+            name: frontend-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
