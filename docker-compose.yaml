@@ -7,8 +7,8 @@ services:
       - "80:80"
     depends_on:
       - frontend
-      - studentservice
-      - teacherservice
+      # - studentservice
+      # - teacherservice
       - employeeservice
 
   frontend:
@@ -19,7 +19,7 @@ services:
       - "3000:3000"
     depends_on:
       - studentservice
-      - teacherservice
+      # - teacherservice
       - employeeservice
   teacherservice:
     build: ./teacherservice
@@ -28,8 +28,12 @@ services:
     ports:
       - "5002:5002"
     environment:
-      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
-      - DATABASE_NAME=schooldb
+      MONGO_HOST: mongo
+      MONGO_PORT: "27017"
+      MONGO_DB: mydb
+      MONGO_USER: lovelu
+      MONGO_PASSWORD: password123
+      MONGO_AUTH_SOURCE: admin
     depends_on:
       - mongo
   studentservice:
@@ -39,8 +43,12 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
-      - DATABASE_NAME=schooldb
+      MONGO_HOST: mongo
+      MONGO_PORT: "27017"
+      MONGO_DB: mydb
+      MONGO_USER: lovelu
+      MONGO_PASSWORD: password123
+      MONGO_AUTH_SOURCE: admin
     depends_on:
       - mongo
   employeeservice:
@@ -50,8 +58,12 @@ services:
     ports:
       - "5003:5003"
     environment:
-      - MONGODB_URI=mongodb://admin:password123@mongo:27017/schooldb?authSource=admin
-      - DATABASE_NAME=schooldb
+      MONGO_HOST: mongo
+      MONGO_PORT: "27017"
+      MONGO_DB: mydb
+      MONGO_USER: lovelu
+      MONGO_PASSWORD: password123
+      MONGO_AUTH_SOURCE: admin
     depends_on:
       - mongo
 
@@ -64,7 +76,7 @@ services:
     volumes:
       - mongodb-data:/data/mongodbschool
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_USERNAME: lovelu
       MONGO_INITDB_ROOT_PASSWORD: password123
       MONGO_INITDB_DATABASE: schooldb
 
