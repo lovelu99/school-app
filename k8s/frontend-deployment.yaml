@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: school-frontend
+  labels:
+    app: school-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: school-frontend
+  template:
+    metadata:
+      labels:
+        app:  school-frontend
+    spec:
+      containers:
+        - name: school-frontend
+          image: noakhali/school-app-frontend:2.0
+          ports:
+            - containerPort: 3000
+              protocol: TCP

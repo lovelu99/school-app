@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teacher-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teacher-backend
+  template:
+    metadata:
+      labels:
+        app: teacher-backend
+    spec:
+      containers:
+        - name: teacher-backend
+          image: noakhali/school-app-teacherservice:2.0
+          ports:
+            - containerPort: 5002
+              protocol: TCP
+          env:
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: school-app-config
+                  key: MONGO_HOST
+            - name: MONGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: school-app-config
+                  key: MONGO_PORT
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: school-app-config
+                  key: MONGO_DB
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: school-db-credentials
+                  key: MONGO_USERNAME
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: school-db-credentials
+                  key: MONGO_PASSWORD
