@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: school-ingress
+  name: school-ingress-regex
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -31,14 +31,6 @@ spec:
             backend:
               service:
                 name: teacher-svc
-                port:
-                  number: 80      
-          
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-svc
                 port:
                   number: 80
 

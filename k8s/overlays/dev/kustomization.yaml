@@ -6,7 +6,8 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - secret.yaml
-  - ingress.yaml
+  - school-ingress-regex.yaml
+  - school-ingress-prefix.yaml
   - ../../base
 
 patches:

@@ -306,10 +306,28 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: school-ingress-prefix
+  namespace: school-prod
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: frontend-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
-  name: school-ingress
+  name: school-ingress-regex
   namespace: school-prod
 spec:
   ingressClassName: nginx
@@ -337,10 +355,3 @@ spec:
               number: 80
         path: /teacherservice(/|$)(.*)
         pathType: ImplementationSpecific
-      - backend:
-          service:
-            name: frontend-svc
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
